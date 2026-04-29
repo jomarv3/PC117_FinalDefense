@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Librarian Dashboard</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial;
+}
+
+body {
+    display: flex;
+    height: 100vh;
+    background: #eef2ff;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 250px;
+    background: #1f2937;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.sidebar h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.nav a {
+    display: block;
+    padding: 12px;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.nav a:hover {
+    background: #374151;
+}
+
+.nav a.active {
+    background: #2563eb;
+}
+
+/* MAIN */
+.main {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+/* SECTIONS */
+.section {
+    display: none;
+}
+
+.section.active {
+    display: block;
+}
+
+/* CARDS */
+.card {
+    background: white;
+    padding: 20px;
+    margin: 10px;
+    display: inline-block;
+    width: 200px;
+    border-radius: 10px;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+}
+
+/* BUTTON */
+button {
+    background: red;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div>
+        <h2>Librarian</h2>
+
+        <div class="nav">
+            <a class="menu active" data-page="dashboard">Dashboard</a>
+            <a class="menu" data-page="books">Books</a>
+            <a class="menu" data-page="borrow">Borrow / Return</a>
+        </div>
+    </div>
+
+    <button onclick="logout()">Logout</button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="section active">
+        <h2>Dashboard Overview</h2>
+
+        <div class="card">Books</div>
+        <div class="card">Borrowed</div>
+        <div class="card">Returned</div>
+    </div>
+
+    <!-- BOOKS -->
+    <div id="books" class="section">
+        <h2>Books Module</h2>
+        <p>Here you will connect Laravel Books API.</p>
+
+        <div class="card">Book 1</div>
+        <div class="card">Book 2</div>
+        <div class="card">Book 3</div>
+    </div>
+
+    <!-- BORROW / RETURN -->
+    <div id="borrow" class="section">
+        <h2>Borrow / Return</h2>
+
+        <div class="card">Borrow Book</div>
+        <div class="card">Return Book</div>
+    </div>
+
+</div>
+
+<script>
+const user = JSON.parse(localStorage.getItem("user"));
+
+// ROLE CHECK
+if (!user || user.role !== "librarian") {
+    window.location.href = "index.html";
+}
+
+/* SIDEBAR NAVIGATION */
+const menus = document.querySelectorAll(".menu");
+const sections = document.querySelectorAll(".section");
+
+menus.forEach(menu => {
+    menu.addEventListener("click", () => {
+
+        menus.forEach(m => m.classList.remove("active"));
+        menu.classList.add("active");
+
+        const page = menu.getAttribute("data-page");
+
+        sections.forEach(s => s.classList.remove("active"));
+        document.getElementById(page).classList.add("active");
+    });
+});
+
+/* LOGOUT */
+function logout() {
+    localStorage.clear();
+    window.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>
