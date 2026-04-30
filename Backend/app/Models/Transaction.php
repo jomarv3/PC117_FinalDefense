@@ -11,8 +11,15 @@ class Transaction extends Model
 
     protected $table = 'transactions';
 
-   protected $fillable = [
-        'user_id','book_id','borrow_date','return_date','status'
+    protected $fillable = [
+        'user_id',
+        'book_id',
+        'borrow_date',
+        'due_date',
+        'return_date',
+        'status',
+        'due_notified_at',
+        'overdue_notified_at',
     ];
 
 

@@ -14,13 +14,14 @@ class TransactionSeeder extends Seeder
         $borrower = User::where('role', 'borrower')->first();
         $books = Book::all();
 
-        if (!$borrower || $books->count() === 0) return;
+        if (!$borrower || $books->count() < 2) return;
 
         Transaction::insert([
             [
                 'user_id' => $borrower->id,
                 'book_id' => $books[0]->id,
-                'type' => 'borrow',
+                'borrow_date' => now(),
+                'return_date' => now(),
                 'status' => 'returned',
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -28,7 +29,8 @@ class TransactionSeeder extends Seeder
             [
                 'user_id' => $borrower->id,
                 'book_id' => $books[1]->id,
-                'type' => 'borrow',
+                'borrow_date' => now(),
+                'return_date' => null,
                 'status' => 'borrowed',
                 'created_at' => now(),
                 'updated_at' => now(),

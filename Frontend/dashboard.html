@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Library Management System | Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<link rel="stylesheet" href="css/shared/base.css?v=15">
+<link rel="stylesheet" href="css/shared/components.css?v=15">
+<link rel="stylesheet" href="css/sections/transactions.css?v=15">
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div>
+        <h2></h2>
+
+        <div class="nav"></div>
+    </div>
+
+    <button class="logout" onclick="logout()">Sign Out</button>
+</div>
+
+<div class="main">
+
+    <div id="dashboard" class="section active">
+        <h2>Dashboard</h2>
+        <div id="dashboardStats" class="dashboard-stats"></div>
+        <div class="dashboard-panel">
+            <div class="panel-header">
+                <h3>Recent Borrowing Activity</h3>
+            </div>
+            <table id="dashboardActivityTable"></table>
+        </div>
+    </div>
+
+    <div id="users" class="section">
+        <h2>Member Management</h2>
+        <div class="section-actions">
+            <button class="primary" onclick="addUser()">+ Add Member</button>
+            <button class="primary" onclick="importRecords('users')">Import Members</button>
+            <button class="primary" onclick="downloadFile('export/users')">Export Members</button>
+            <button class="primary" onclick="openReport('users')">Print Member List</button>
+        </div>
+        <table id="usersTable"></table>
+    </div>
+
+    <div id="books" class="section">
+        <h2>Catalog Management</h2>
+        <div class="section-actions book-management-actions" hidden>
+            <button class="primary" onclick="addBook()">+ Add Catalog Record</button>
+            <button class="primary" onclick="manageCategories()">Manage Categories</button>
+            <button class="primary" onclick="importRecords('books')">Import Catalog</button>
+            <button class="primary" onclick="downloadFile('export/books')">Export Catalog</button>
+            <button class="primary" onclick="openReport('books')">Print Inventory Report</button>
+        </div>
+        <div class="table-controls">
+            <input id="bookSearchInput" placeholder="Search catalog by title, author, category, ISBN, or library reference">
+            <select id="bookSortSelect">
+                <option value="latest">Newest Records</option>
+                <option value="title">Title</option>
+                <option value="author">Author</option>
+                <option value="category">Category</option>
+                <option value="available">Available Copies</option>
+                <option value="status">Status</option>
+            </select>
+        </div>
+        <table id="booksTable"></table>
+        <div id="bookCards" class="book-card-grid"></div>
+    </div>
+
+    <div id="transactions" class="section">
+        <h2>Borrowing Management</h2>
+        <div class="section-actions">
+            <button class="primary" onclick="addTransaction()">+ Record Borrowing</button>
+            <button class="primary" onclick="importRecords('transactions')">Import Transactions</button>
+            <button class="primary" onclick="downloadFile('export/transactions')">Export Transactions</button>
+            <button class="primary" onclick="openReport('transactions')">Print Transaction Report</button>
+        </div>
+        <div class="table-controls">
+            <input id="transactionSearchInput" placeholder="Search transactions by member, title, reference number, date, or status">
+            <select id="transactionSortSelect">
+                <option value="latest">Newest Transactions</option>
+                <option value="user">Member</option>
+                <option value="book">Book</option>
+                <option value="reference">Library Ref. No.</option>
+                <option value="status">Status</option>
+                <option value="borrow_date">Borrow Date</option>
+                <option value="return_date">Return Date</option>
+            </select>
+        </div>
+        <table id="transTable"></table>
+    </div>
+
+</div>
+
+<script src="js/shared/config.js?v=15"></script>
+<script src="js/shared/auth.js?v=15"></script>
+<script src="js/sections/users.js?v=15"></script>
+<script src="js/sections/books.js?v=15"></script>
+<script src="js/sections/transactions.js?v=15"></script>
+<script src="js/shared/delete.js?v=15"></script>
+<script src="js/app.js?v=15"></script>
+
+</body>
+</html>

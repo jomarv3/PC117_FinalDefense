@@ -8,10 +8,11 @@ use Illuminate\Http\Request;
 class RoleMiddleware
 {
     public function handle($request, Closure $next, ...$roles)
-{
-    if (!in_array($request->user()->role, $roles)) {
-        return response()->json(['message'=>'Forbidden'],403);
+    {
+        if (!$request->user() || !in_array($request->user()->role, $roles, true)) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        return $next($request);
     }
-    return $next($request);
-}
 }

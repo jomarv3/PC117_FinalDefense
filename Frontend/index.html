@@ -2,138 +2,37 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Library Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Library Management System | Sign In</title>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<style>
-body {
-    height: 100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background: linear-gradient(135deg,#1e3c72,#2a5298);
-    font-family: Arial;
-}
-
-.container {
-    width: 380px;
-    background: rgba(255,255,255,0.12);
-    padding: 30px;
-    border-radius: 20px;
-    color: white;
-}
-
-input, button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 10px;
-    border-radius: 10px;
-    border: none;
-}
-
-button { background:#00c6ff; color:white; font-weight:bold; cursor:pointer; }
-
-.switch { text-align:center; margin-top:10px; cursor:pointer; }
-</style>
+<link rel="stylesheet" href="css/shared/auth.css">
 </head>
 
 <body>
 
-<div class="container">
-    <h2 id="title">Login</h2>
+<main class="auth-shell">
+    <section class="auth-card">
+        <h1 id="title">Library Management System</h1>
+        <p id="subtitle">Sign in to manage catalog records, members, and borrowing transactions.</p>
 
-    <input id="name" placeholder="Full Name" style="display:none;">
-    <input id="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Password">
+        <form id="authForm">
+            <input id="name" placeholder="Full name" style="display:none;">
+            <input id="email" placeholder="Email address">
+            <input id="password" type="password" placeholder="Password">
 
-    <button id="btn">Login</button>
+            <button id="btn" type="submit">Sign In</button>
+        </form>
 
-    <div class="switch" id="toggle">No account? Register here</div>
-</div>
+        <div class="switch" id="toggle">Create a borrower account</div>
+    </section>
+</main>
 
-<script>
-const API = "http://127.0.0.1:8000/api";
-let isLogin = true;
-
-const nameInput = document.getElementById("name");
-const email = document.getElementById("email");
-const password = document.getElementById("password");
-
-document.getElementById("toggle").onclick = () => {
-    isLogin = !isLogin;
-
-    document.getElementById("title").innerText = isLogin ? "Login" : "Register";
-    document.getElementById("btn").innerText = isLogin ? "Login" : "Create Account";
-    nameInput.style.display = isLogin ? "none" : "block";
-};
-
-document.getElementById("btn").onclick = async () => {
-    try {
-
-        let url = isLogin ? "/login" : "/register";
-
-        let payload = isLogin ? {
-            email: email.value,
-            password: password.value
-        } : {
-            name: nameInput.value,
-            email: email.value,
-            password: password.value
-        };
-
-        const res = await fetch(`${API}${url}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify(payload)
-        });
-
-        const data = await res.json().catch(() => ({}));
-
-        if (!res.ok) {
-            throw new Error(data.message || "Request failed");
-        }
-
-        if (isLogin) {
-
-            // SAFE CHECK TOKEN
-            if (data.token) {
-                localStorage.setItem("token", data.token);
-            }
-
-            localStorage.setItem("user", JSON.stringify(data.user));
-
-            Swal.fire("Success", "Login successful", "success");
-
-            redirect(data.user);
-
-        } else {
-            Swal.fire("Success", "Registered successfully", "success");
-            document.getElementById("toggle").click();
-        }
-
-    } catch(err) {
-        Swal.fire("Error", err.message, "error");
-    }
-};
-
-function redirect(user) {
-    if (!user || !user.role) {
-        Swal.fire("Error", "Invalid user role", "error");
-        return;
-    }
-
-    if (user.role === "admin") {
-        window.location.href = "admin_dashboard.html";
-    } else if (user.role === "librarian") {
-        window.location.href = "librarian_dashboard.html";
-    } else {
-        window.location.href = "borrower_dashboard.html";
-    }
-}
-</script>
+<script src="js/shared/config.js?v=4"></script>
+<script src="js/auth/login.js?v=4"></script>
 
 </body>
 </html>

@@ -12,7 +12,9 @@ return new class extends Migration
         $table->id();
         $table->string('title');
         $table->string('author');
+        $table->string('category')->nullable();
         $table->string('isbn')->unique();
+        $table->string('book_isbn')->nullable();
         $table->integer('quantity')->default(1);
         $table->string('image')->nullable();
         $table->string('qr_code')->nullable();

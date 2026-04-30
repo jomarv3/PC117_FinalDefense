@@ -15,11 +15,19 @@ class UserController extends Controller
         return response()->json(User::latest()->get());
     }
 
+    public function borrowers()
+    {
+        return response()->json(
+            User::where('role', 'borrower')->latest()->get()
+        );
+    }
+
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users',
+            'phone' => 'nullable',
             'password' => 'required|min:6',
             'role' => 'required',
             'profile_image' => 'nullable|image|mimes:jpg,jpeg,png'
@@ -34,13 +42,14 @@ class UserController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $request->phone,
             'password' => Hash::make($request->password),
             'role' => $request->role,
             'profile_image' => $path
         ]);
 
         return response()->json([
-            'message' => 'User created successfully',
+            'message' => 'Member account created successfully.',
             'user' => $user
         ]);
     }
@@ -54,6 +63,15 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
+        $request->validate([
+            'name' => 'nullable',
+            'email' => "nullable|email|unique:users,email,$id",
+            'phone' => 'nullable',
+            'password' => 'nullable|min:6',
+            'role' => 'nullable',
+            'profile_image' => 'nullable|image|mimes:jpg,jpeg,png'
+        ]);
+
         if ($request->hasFile('profile_image')) {
             if ($user->profile_image) {
                 Storage::disk('public')->delete($user->profile_image);
@@ -65,6 +83,7 @@ class UserController extends Controller
         $user->update([
             'name' => $request->name ?? $user->name,
             'email' => $request->email ?? $user->email,
+            'phone' => $request->phone ?? $user->phone,
             'role' => $request->role ?? $user->role,
             'password' => $request->password
                 ? Hash::make($request->password)
@@ -73,7 +92,7 @@ class UserController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'User updated successfully',
+            'message' => 'Member account updated successfully.',
             'user' => $user
         ]);
     }
@@ -89,7 +108,7 @@ class UserController extends Controller
         $user->delete();
 
         return response()->json([
-            'message' => 'User deleted successfully'
+            'message' => 'Member account deleted successfully.'
         ]);
     }
 }
