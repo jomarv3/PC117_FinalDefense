@@ -1,0 +1,79 @@
+{
+  "id": "task05-backend-mobile-api-tests",
+  "title": "Add Laravel feature tests for mobile API",
+  "type": "backend-test",
+  "priority": 5,
+  "depends_on": [
+    "task01-backend-api-key-middleware",
+    "task02-backend-mobile-routes",
+    "task03-backend-mobile-auth-controller",
+    "task04-backend-mobile-book-lookup"
+  ],
+  "goal": "Prove the mobile API key, authentication, RBAC, and QR lookup behavior work reliably.",
+  "files_to_create": [
+    "Backend/tests/Feature/MobileApiTest.php"
+  ],
+  "implementation_steps": [
+    "Create feature tests using Laravel testing utilities.",
+    "Set config services.mobile.api_key to a known test key during tests.",
+    "Create users for admin, librarian, and borrower roles.",
+    "Create at least one book with isbn set to a known QR/library reference value.",
+    "Create transactions linked to the book for staff response tests.",
+    "Test mobile route without x-api-key.",
+    "Test mobile route with wrong x-api-key.",
+    "Test mobile login with correct x-api-key.",
+    "Test mobile login rejects wrong credentials.",
+    "Test protected route rejects missing Bearer token.",
+    "Test /api/mobile/me returns role_label User for borrower.",
+    "Test QR lookup returns book details for valid code.",
+    "Test QR lookup returns 422 for missing code.",
+    "Test QR lookup returns 404 for unknown code.",
+    "Test admin/librarian lookup includes recent_transactions.",
+    "Test borrower lookup excludes recent_transactions."
+  ],
+  "test_cases": [
+    {
+      "name": "missing_api_key_is_rejected",
+      "expected": "401 Invalid mobile API key."
+    },
+    {
+      "name": "invalid_api_key_is_rejected",
+      "expected": "401 Invalid mobile API key."
+    },
+    {
+      "name": "valid_api_key_allows_mobile_login",
+      "expected": "200 with token and user"
+    },
+    {
+      "name": "mobile_register_creates_borrower",
+      "expected": "201 with role borrower and role_label User"
+    },
+    {
+      "name": "protected_mobile_routes_require_token",
+      "expected": "401 unauthenticated"
+    },
+    {
+      "name": "qr_lookup_returns_book",
+      "expected": "200 with normalized book payload"
+    },
+    {
+      "name": "staff_qr_lookup_includes_recent_transactions",
+      "expected": "recent_transactions key exists"
+    },
+    {
+      "name": "borrower_qr_lookup_hides_recent_transactions",
+      "expected": "recent_transactions key does not exist"
+    }
+  ],
+  "acceptance_criteria": [
+    "All new MobileApiTest tests pass.",
+    "Existing tests still pass.",
+    "Tests do not depend on real .env values.",
+    "Tests do not require external network access."
+  ],
+  "verification_commands": [
+    "cd Backend",
+    "php artisan test --filter=MobileApiTest",
+    "php artisan test"
+  ]
+}

@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\CacheControlMiddleware;
+use App\Http\Middleware\MobileApiKeyMiddleware;
 use App\Http\Middleware\RoleMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -14,8 +15,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->prependToPriorityList(
+            \Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests::class,
+            MobileApiKeyMiddleware::class
+        );
+
         $middleware->alias([
             'cache.headers' => CacheControlMiddleware::class,
+            'mobile.api.key' => MobileApiKeyMiddleware::class,
             'role' => RoleMiddleware::class,
         ]);
     })

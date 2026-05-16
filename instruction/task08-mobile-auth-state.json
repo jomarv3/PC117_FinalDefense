@@ -1,0 +1,55 @@
+{
+  "id": "task08-mobile-auth-state",
+  "title": "Implement persistent mobile authentication state",
+  "type": "mobile",
+  "priority": 8,
+  "depends_on": [
+    "task07-mobile-api-client"
+  ],
+  "goal": "Manage login, registration, logout, token persistence, session restoration, and role state in React Native.",
+  "suggested_files_to_create": [
+    "MobileApp/src/auth/AuthProvider.tsx",
+    "MobileApp/src/auth/useAuth.ts",
+    "MobileApp/src/auth/storage.ts"
+  ],
+  "implementation_steps": [
+    "Use expo-secure-store for storing the Sanctum token.",
+    "Store user and role in React state.",
+    "On app start, read token from SecureStore.",
+    "If token exists, call getMe(token).",
+    "If getMe succeeds, set user, role, role_label, and mobile_features.",
+    "If getMe fails with 401, clear SecureStore and reset auth state.",
+    "Expose login(email, password).",
+    "Expose register(name, email, password).",
+    "Expose logout().",
+    "Expose refreshMe().",
+    "Expose isAuthenticated, isLoading, user, token, role, roleLabel, and mobileFeatures.",
+    "Ensure logout calls backend logout if token exists, then clears local state even if backend request fails."
+  ],
+  "state_shape": {
+    "token": "string | null",
+    "user": "AuthUser | null",
+    "role": "admin | librarian | borrower | null",
+    "roleLabel": "Admin | Librarian | User | null",
+    "mobileFeatures": "string[]",
+    "isLoading": "boolean",
+    "isAuthenticated": "boolean"
+  },
+  "secure_store_keys": {
+    "token": "library_mobile_token"
+  },
+  "acceptance_criteria": [
+    "Token is saved after login.",
+    "Token is restored after app restart.",
+    "Invalid token clears local auth state.",
+    "Logout clears SecureStore token.",
+    "Role label User is available for borrower accounts.",
+    "All screens can read auth state through a hook/provider."
+  ],
+  "edge_cases": [
+    "Backend is offline during app startup.",
+    "Token exists but is expired.",
+    "User logs out while network is unavailable.",
+    "API key is missing from mobile env."
+  ]
+}

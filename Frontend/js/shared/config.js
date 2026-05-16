@@ -1,4 +1,4 @@
-const API = "http://127.0.0.1:8000/api";
+const API = window.LIBRARY_API_URL || "http://192.168.1.14:8000/api";
 const token = localStorage.getItem("token");
 const SESSION_KEY = "sessionExpiresAt";
 const noUserImage = "https://dummyimage.com/50x50/cccccc/000000&text=Member";

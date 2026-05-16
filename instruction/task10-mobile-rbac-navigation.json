@@ -1,0 +1,43 @@
+{
+  "id": "task10-mobile-rbac-navigation",
+  "title": "Implement RBAC-aware navigation and authenticated shell",
+  "type": "mobile-ui",
+  "priority": 10,
+  "depends_on": [
+    "task08-mobile-auth-state",
+    "task09-mobile-auth-screens"
+  ],
+  "goal": "Route users between auth screens and scanner screens, while showing role-appropriate UI.",
+  "suggested_files_to_create": [
+    "MobileApp/app/(app)/_layout.tsx",
+    "MobileApp/app/(app)/index.tsx",
+    "MobileApp/app/(app)/profile.tsx"
+  ],
+  "implementation_steps": [
+    "Create an authenticated app layout.",
+    "If auth state is loading, show a loading screen.",
+    "If not authenticated, redirect to login.",
+    "If authenticated, show scanner/home access.",
+    "Add a profile screen showing name, email, and role label.",
+    "Add a logout button available to all roles.",
+    "Display borrower role as User.",
+    "Display admin and librarian as staff roles.",
+    "Do not add full book/user/transaction management screens in v1.",
+    "Make sure all roles can access scanner and book details.",
+    "Use mobile_features from backend to decide whether staff-only metadata can be displayed."
+  ],
+  "rbac_rules": [
+    "admin can scan books and view staff metadata returned by backend.",
+    "librarian can scan books and view staff metadata returned by backend.",
+    "borrower/User can scan books and view basic book details only.",
+    "No role can access full management screens because they are out of scope for v1."
+  ],
+  "acceptance_criteria": [
+    "Unauthenticated users cannot access scanner screen.",
+    "Authenticated users are routed to scanner/home.",
+    "Profile screen shows role label correctly.",
+    "Borrower displays as User.",
+    "Admin/librarian display as staff access.",
+    "Logout works from profile screen."
+  ]
+}

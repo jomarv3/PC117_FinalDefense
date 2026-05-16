@@ -1,0 +1,95 @@
+{
+  "id": "task07-mobile-api-client",
+  "title": "Create React Native API client for Laravel mobile API",
+  "type": "mobile",
+  "priority": 7,
+  "depends_on": [
+    "task06-mobile-expo-scaffold"
+  ],
+  "goal": "Centralize all mobile HTTP requests, x-api-key handling, Bearer token handling, and API error normalization.",
+  "suggested_files_to_create": [
+    "MobileApp/src/api/client.ts",
+    "MobileApp/src/api/auth.ts",
+    "MobileApp/src/api/books.ts",
+    "MobileApp/src/types/api.ts"
+  ],
+  "implementation_steps": [
+    "Create a base API client module.",
+    "Read process.env.EXPO_PUBLIC_API_URL.",
+    "Read process.env.EXPO_PUBLIC_LIBRARY_API_KEY.",
+    "Throw a clear development error if API URL or API key is missing.",
+    "Every request must include Accept: application/json.",
+    "Every request must include x-api-key.",
+    "When a token is provided, include Authorization: Bearer {token}.",
+    "Support JSON request bodies for login/register.",
+    "Support query string requests for QR lookup.",
+    "Parse JSON responses safely.",
+    "If response is not ok, throw a normalized ApiError with status and message.",
+    "Create typed API functions: login, register, logout, getMe, and lookupBookByQrCode."
+  ],
+  "api_functions": [
+    {
+      "name": "login",
+      "input": {
+        "email": "string",
+        "password": "string"
+      },
+      "method": "POST",
+      "endpoint": "/mobile/login",
+      "auth_required": false
+    },
+    {
+      "name": "register",
+      "input": {
+        "name": "string",
+        "email": "string",
+        "password": "string"
+      },
+      "method": "POST",
+      "endpoint": "/mobile/register",
+      "auth_required": false
+    },
+    {
+      "name": "logout",
+      "input": {
+        "token": "string"
+      },
+      "method": "POST",
+      "endpoint": "/mobile/logout",
+      "auth_required": true
+    },
+    {
+      "name": "getMe",
+      "input": {
+        "token": "string"
+      },
+      "method": "GET",
+      "endpoint": "/mobile/me",
+      "auth_required": true
+    },
+    {
+      "name": "lookupBookByQrCode",
+      "input": {
+        "token": "string",
+        "code": "string"
+      },
+      "method": "GET",
+      "endpoint": "/mobile/books/lookup?code={code}",
+      "auth_required": true
+    }
+  ],
+  "error_handling_rules": [
+    "401 from invalid x-api-key should show a setup/configuration error.",
+    "401 from missing/expired Bearer token should trigger logout.",
+    "404 from lookup should show 'No book found for this QR code.'.",
+    "422 should show backend validation message.",
+    "Network failure should show 'Cannot connect to the library server.'."
+  ],
+  "acceptance_criteria": [
+    "No screen calls fetch directly.",
+    "All API calls include x-api-key.",
+    "Authenticated calls include Bearer token.",
+    "API errors are normalized into predictable error objects.",
+    "TypeScript types exist for AuthUser, AuthResponse, BookDetails, and ApiError."
+  ]
+}

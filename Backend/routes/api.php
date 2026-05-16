@@ -1,16 +1,33 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\AuthController;
-use App\Http\Controllers\API\UserController;
-use App\Http\Controllers\API\BookController;
-use App\Http\Controllers\API\TransactionController;
-use App\Http\Controllers\API\DashboardController;
-use App\Http\Controllers\API\RecordController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\MobileAuthController;
+use App\Http\Controllers\Api\MobileBookController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\BookController;
+use App\Http\Controllers\Api\TransactionController;
+use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\RecordController;
 
 
 Route::post('/login', [AuthController::class, 'login'])->middleware('cache.headers')->name('login');
 Route::post('/register', [AuthController::class, 'register'])->middleware('cache.headers');
+
+Route::prefix('mobile')
+    ->middleware(['cache.headers'])
+    ->group(function () {
+        Route::middleware('mobile.api.key')->group(function () {
+            Route::post('/login', [MobileAuthController::class, 'login']);
+            Route::post('/register', [MobileAuthController::class, 'register']);
+        });
+
+        Route::middleware(['mobile.api.key', 'auth:sanctum'])->group(function () {
+            Route::post('/logout', [MobileAuthController::class, 'logout']);
+            Route::get('/me', [MobileAuthController::class, 'me']);
+            Route::get('/books/lookup', [MobileBookController::class, 'lookup']);
+        });
+    });
 
 
 

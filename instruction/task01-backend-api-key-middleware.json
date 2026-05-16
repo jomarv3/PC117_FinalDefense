@@ -1,0 +1,75 @@
+{
+  "id": "task01-backend-api-key-middleware",
+  "title": "Add Laravel x-api-key middleware for mobile API routes",
+  "type": "backend",
+  "priority": 1,
+  "depends_on": [],
+  "goal": "Add an app-level API key gate for all future mobile API routes without changing the existing web frontend routes.",
+  "context": {
+    "backend_path": "Backend",
+    "framework": "Laravel",
+    "current_auth": "Laravel Sanctum Bearer tokens are already used by the existing API.",
+    "important_existing_files": [
+      "Backend/routes/api.php",
+      "Backend/bootstrap/app.php",
+      "Backend/config/services.php",
+      "Backend/.env.example"
+    ]
+  },
+  "files_to_create": [
+    "Backend/app/Http/Middleware/MobileApiKeyMiddleware.php"
+  ],
+  "files_to_modify": [
+    "Backend/bootstrap/app.php",
+    "Backend/config/services.php",
+    "Backend/.env.example"
+  ],
+  "implementation_steps": [
+    "Create MobileApiKeyMiddleware in Backend/app/Http/Middleware.",
+    "Read the expected key from config('services.mobile.api_key').",
+    "Read the provided key from the request header x-api-key.",
+    "If the configured key is empty, missing, or does not match, return JSON status 401.",
+    "Use hash_equals for safe string comparison.",
+    "Register middleware alias mobile.api.key in Backend/bootstrap/app.php.",
+    "Add a mobile config entry to Backend/config/services.php.",
+    "Add MOBILE_API_KEY=change-me-local-mobile-key to Backend/.env.example.",
+    "Do not add the real key to committed files.",
+    "Do not apply the middleware to existing /api routes yet."
+  ],
+  "expected_config_shape": {
+    "file": "Backend/config/services.php",
+    "entry": {
+      "mobile": {
+        "api_key": "env('MOBILE_API_KEY')"
+      }
+    }
+  },
+  "middleware_behavior": {
+    "header_name": "x-api-key",
+    "valid_response": "Request continues to the next middleware/controller.",
+    "invalid_response": {
+      "status": 401,
+      "json": {
+        "message": "Invalid mobile API key."
+      }
+    }
+  },
+  "acceptance_criteria": [
+    "MobileApiKeyMiddleware exists.",
+    "Alias mobile.api.key is registered in bootstrap/app.php.",
+    "config('services.mobile.api_key') resolves from MOBILE_API_KEY.",
+    "Requests without x-api-key return 401 JSON.",
+    "Requests with an incorrect x-api-key return 401 JSON.",
+    "Requests with the correct x-api-key continue normally.",
+    "Existing Frontend API behavior is unchanged."
+  ],
+  "verification": [
+    "Run php artisan config:clear from Backend.",
+    "Use a temporary test route or later mobile route to verify missing x-api-key returns 401.",
+    "Verify existing /api/login still works without x-api-key."
+  ],
+  "out_of_scope": [
+    "Do not create mobile routes in this task.",
+    "Do not modify existing AuthController behavior in this task."
+  ]
+}

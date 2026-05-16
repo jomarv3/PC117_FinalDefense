@@ -1,0 +1,104 @@
+{
+  "id": "task02-backend-mobile-routes",
+  "title": "Create isolated Laravel mobile API route group",
+  "type": "backend",
+  "priority": 2,
+  "depends_on": [
+    "task01-backend-api-key-middleware"
+  ],
+  "goal": "Add /api/mobile routes for the React Native app while preserving all existing web frontend API routes.",
+  "context": {
+    "main_route_file": "Backend/routes/api.php",
+    "existing_public_routes": [
+      "POST /api/login",
+      "POST /api/register"
+    ],
+    "existing_protected_routes": [
+      "GET /api/dashboard",
+      "GET /api/books",
+      "admin/librarian management routes"
+    ]
+  },
+  "files_to_modify": [
+    "Backend/routes/api.php"
+  ],
+  "implementation_steps": [
+    "Add a Route::prefix('mobile') group in Backend/routes/api.php.",
+    "Apply middleware cache.headers and mobile.api.key to the entire mobile group.",
+    "Inside the mobile group, define public mobile routes for login and register.",
+    "Inside the mobile group, define a nested auth:sanctum group for logout, me, and book lookup.",
+    "Use controller names that clearly indicate mobile behavior, preferably MobileAuthController and MobileBookController.",
+    "Do not remove, rename, or alter existing non-mobile API routes."
+  ],
+  "required_routes": [
+    {
+      "method": "POST",
+      "uri": "/api/mobile/login",
+      "middleware": [
+        "cache.headers",
+        "mobile.api.key"
+      ],
+      "controller": "MobileAuthController@login",
+      "auth_required": false
+    },
+    {
+      "method": "POST",
+      "uri": "/api/mobile/register",
+      "middleware": [
+        "cache.headers",
+        "mobile.api.key"
+      ],
+      "controller": "MobileAuthController@register",
+      "auth_required": false
+    },
+    {
+      "method": "POST",
+      "uri": "/api/mobile/logout",
+      "middleware": [
+        "cache.headers",
+        "mobile.api.key",
+        "auth:sanctum"
+      ],
+      "controller": "MobileAuthController@logout",
+      "auth_required": true
+    },
+    {
+      "method": "GET",
+      "uri": "/api/mobile/me",
+      "middleware": [
+        "cache.headers",
+        "mobile.api.key",
+        "auth:sanctum"
+      ],
+      "controller": "MobileAuthController@me",
+      "auth_required": true
+    },
+    {
+      "method": "GET",
+      "uri": "/api/mobile/books/lookup",
+      "middleware": [
+        "cache.headers",
+        "mobile.api.key",
+        "auth:sanctum"
+      ],
+      "controller": "MobileBookController@lookup",
+      "auth_required": true
+    }
+  ],
+  "acceptance_criteria": [
+    "All /api/mobile routes exist.",
+    "All /api/mobile routes require x-api-key.",
+    "Protected mobile routes require Bearer token.",
+    "Existing /api/login and /api/register still work for the current web frontend.",
+    "Existing Frontend dashboard behavior is unchanged."
+  ],
+  "verification": [
+    "Run php artisan route:list and confirm /api/mobile routes.",
+    "Call /api/mobile/login without x-api-key and confirm 401.",
+    "Call existing /api/login without x-api-key and confirm it still reaches normal auth behavior."
+  ],
+  "out_of_scope": [
+    "Do not implement controller logic in this task unless stubs are needed.",
+    "Do not change database schema."
+  ]
+}

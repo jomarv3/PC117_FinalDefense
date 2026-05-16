@@ -1,0 +1,51 @@
+{
+  "id": "task11-mobile-qr-scanner",
+  "title": "Build Expo Go QR scanner flow",
+  "type": "mobile-ui",
+  "priority": 11,
+  "depends_on": [
+    "task07-mobile-api-client",
+    "task08-mobile-auth-state",
+    "task10-mobile-rbac-navigation"
+  ],
+  "goal": "Use the phone camera through Expo Go to scan QR codes and fetch book details from Laravel.",
+  "suggested_files_to_create": [
+    "MobileApp/app/(app)/scanner.tsx",
+    "MobileApp/src/scanner/useQrScanner.ts"
+  ],
+  "implementation_steps": [
+    "Use expo-camera for camera access.",
+    "Request camera permission when scanner screen opens.",
+    "Show a permission request state before access is granted.",
+    "Show a helpful denied-permission message if access is denied.",
+    "Configure scanner to detect QR codes.",
+    "When QR is scanned, immediately pause scanning to prevent duplicate API requests.",
+    "Trim the scanned QR value.",
+    "Ignore empty scanned values.",
+    "Call lookupBookByQrCode(token, scannedValue).",
+    "On success, navigate to book details screen and pass returned book data or store it in route-safe state.",
+    "On failure, show a clear error and allow user to scan again.",
+    "Add a manual 'Scan Again' button after error.",
+    "Add a visual scanning frame or instruction text."
+  ],
+  "scanner_behavior": {
+    "permission_denied": "Show message explaining camera permission is required.",
+    "valid_scan": "Fetch book details and navigate to details screen.",
+    "invalid_scan": "Show error and reactivate scanner only after user taps Scan Again.",
+    "duplicate_prevention": "Use an isProcessing flag to prevent repeated lookup calls."
+  },
+  "acceptance_criteria": [
+    "Expo Go prompts for camera permission.",
+    "Scanner detects QR codes.",
+    "A valid book QR opens book details.",
+    "Invalid QR shows useful error.",
+    "Repeated scans do not spam backend.",
+    "User can return from details and scan another book.",
+    "Scanner works on a physical phone with LAN IP or ngrok backend URL."
+  ],
+  "manual_test_requirements": [
+    "Test with an existing generated QR code from Backend storage/public qrcodes.",
+    "Test with manually generated QR containing a known books.isbn value.",
+    "Test with a random QR that does not match any book."
+  ]
+}
