@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/Screen';
 import { Panel } from '@/components/Panel';
@@ -18,17 +19,19 @@ export default function ProfileScreen() {
 
   return (
     <Screen>
-      <Panel style={styles.hero}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{user?.name?.slice(0, 1).toUpperCase() ?? '?'}</Text>
-        </View>
-
-        <View style={styles.heroCopy}>
+      <Panel style={styles.card}>
+        <View style={styles.headerRow}>
+          <View style={styles.headerCopy}>
+            <Text selectable style={styles.name}>
+              {user?.name ?? 'Unknown user'}
+            </Text>
+            <Text selectable style={styles.email}>
+              {user?.email ?? 'No email available'}
+            </Text>
+          </View>
           <Badge tone={role === 'admin' || role === 'librarian' ? 'warning' : 'accent'}>
             {roleLabel ?? 'User'}
           </Badge>
-          <Text style={styles.title}>{user?.name ?? 'Unknown user'}</Text>
-          <Text style={styles.subtitle}>{user?.email ?? 'No email available'}</Text>
         </View>
       </Panel>
 
@@ -56,7 +59,12 @@ export default function ProfileScreen() {
 
       <View style={styles.actions}>
         <PrimaryButton label="Back to scanner" onPress={() => router.replace('/(app)/scanner')} />
-        <PrimaryButton label="Logout" onPress={() => void handleLogout()} tone="ghost" />
+        <PrimaryButton
+          label="Logout"
+          icon={<Ionicons name="log-out-outline" size={18} color={theme.colors.text} />}
+          onPress={() => void handleLogout()}
+          tone="ghost"
+        />
       </View>
     </Screen>
   );
@@ -66,71 +74,60 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.infoRow}>
       <Text style={styles.infoLabel}>{label}</Text>
-      <Text style={styles.infoValue}>{value}</Text>
+      <Text selectable style={styles.infoValue}>
+        {value}
+      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  hero: {
+  card: {
+    gap: theme.spacing.sm,
+  },
+  headerRow: {
     flexDirection: 'row',
     gap: theme.spacing.md,
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
   },
-  avatar: {
-    width: 72,
-    height: 72,
-    borderRadius: 72,
-    backgroundColor: theme.colors.accentSoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(20, 184, 166, 0.28)',
-  },
-  avatarText: {
-    color: theme.colors.accent,
-    fontSize: 28,
-    fontWeight: '900',
-  },
-  heroCopy: {
+  headerCopy: {
     flex: 1,
-    gap: theme.spacing.xs,
+    gap: 4,
   },
-  title: {
+  name: {
     color: theme.colors.text,
-    fontSize: 24,
-    fontWeight: '900',
+    fontSize: 18,
+    lineHeight: 24,
+    fontWeight: '700',
   },
-  subtitle: {
+  email: {
     color: theme.colors.muted,
     fontSize: 14,
     lineHeight: 20,
   },
-  card: {
-    gap: theme.spacing.sm,
-  },
   sectionTitle: {
     color: theme.colors.text,
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: theme.spacing.md,
-    paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(148, 163, 184, 0.10)',
+    paddingVertical: 9,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.borderSoft,
   },
   infoLabel: {
     color: theme.colors.muted,
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '600',
   },
   infoValue: {
     color: theme.colors.text,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '600',
     flexShrink: 1,
     textAlign: 'right',
   },

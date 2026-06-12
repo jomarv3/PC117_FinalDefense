@@ -11,7 +11,7 @@ export default function IndexScreen() {
     return (
       <Screen>
         <Panel>
-          <Text style={{ color: '#e2e8f0', fontSize: 16, fontWeight: '600' }}>
+          <Text style={{ color: '#111827', fontSize: 16, fontWeight: '600' }}>
             Preparing the scanner...
           </Text>
         </Panel>

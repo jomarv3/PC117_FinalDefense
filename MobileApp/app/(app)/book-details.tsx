@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Image } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Screen } from '@/components/Screen';
 import { Panel } from '@/components/Panel';
@@ -68,18 +67,10 @@ export default function BookDetailsScreen() {
 
   return (
     <Screen>
-      <Panel style={styles.hero}>
-        <View style={styles.heroTop}>
-          <Badge tone={staffMode ? 'warning' : 'accent'}>{roleLabel ?? 'User'}</Badge>
-          <Text style={styles.title}>Book details</Text>
-          <Text style={styles.subtitle}>
-            This screen shows the catalog record returned by the mobile lookup endpoint.
-          </Text>
-        </View>
-
-        <View style={styles.heroActions}>
-          <PrimaryButton label="Scan another book" onPress={goBackToScanner} />
-          <PrimaryButton label="Profile" onPress={() => router.push('/(app)/profile')} tone="secondary" />
+      <Panel style={styles.actionPanel}>
+        <Badge tone={staffMode ? 'warning' : 'accent'}>{roleLabel ?? 'User'}</Badge>
+        <View style={styles.actions}>
+          <PrimaryButton label="Scan another" onPress={goBackToScanner} />
         </View>
       </Panel>
 
@@ -91,7 +82,7 @@ export default function BookDetailsScreen() {
         <Panel style={styles.errorCard}>
           <Text style={styles.errorTitle}>Lookup failed</Text>
           <Text style={styles.errorText}>{error}</Text>
-          <View style={styles.errorButtons}>
+          <View style={styles.actions}>
             <PrimaryButton label="Try again" onPress={goBackToScanner} />
             <PrimaryButton label="Back" onPress={() => router.back()} tone="secondary" />
           </View>
@@ -100,23 +91,21 @@ export default function BookDetailsScreen() {
         <>
           <BookDetailCard book={book} staffMode={staffMode} />
 
-          {staffMode && book.recent_transactions && book.recent_transactions.length > 0 ? (
-            <Panel style={styles.summaryCard}>
-              <Text style={styles.sectionTitle}>Borrowing summary</Text>
+          <Panel style={styles.summaryCard}>
+            <Text style={styles.sectionTitle}>{staffMode ? 'Borrowing summary' : 'Quick facts'}</Text>
+            {staffMode && book.recent_transactions && book.recent_transactions.length > 0 ? (
               <Text style={styles.summaryText}>
                 Latest borrow by {book.recent_transactions[0]?.borrower_name ?? 'a borrower'} on{' '}
-                {formatDateTime(book.recent_transactions[0]?.borrow_date)}
-                . Available copies: {book.available_quantity}/{book.quantity}.
+                {formatDateTime(book.recent_transactions[0]?.borrow_date)}. Available copies:{' '}
+                {book.available_quantity}/{book.quantity}.
               </Text>
-            </Panel>
-          ) : (
-            <Panel style={styles.summaryCard}>
-              <Text style={styles.sectionTitle}>Quick facts</Text>
+            ) : (
               <Text style={styles.summaryText}>
-                {formatMaybe(book.category, 'Uncategorized')} · {book.library_reference} · {book.available_quantity}/{book.quantity}
+                {formatMaybe(book.category, 'Uncategorized')} | {book.library_reference} |{' '}
+                {book.available_quantity}/{book.quantity}
               </Text>
-            </Panel>
-          )}
+            )}
+          </Panel>
         </>
       ) : null}
     </Screen>
@@ -124,25 +113,10 @@ export default function BookDetailsScreen() {
 }
 
 const styles = StyleSheet.create({
-  hero: {
+  actionPanel: {
     gap: theme.spacing.md,
   },
-  heroTop: {
-    gap: theme.spacing.sm,
-  },
-  title: {
-    color: theme.colors.text,
-    fontSize: 30,
-    lineHeight: 34,
-    fontWeight: '900',
-    letterSpacing: -0.4,
-  },
-  subtitle: {
-    color: theme.colors.muted,
-    fontSize: 15,
-    lineHeight: 22,
-  },
-  heroActions: {
+  actions: {
     flexDirection: 'row',
     gap: theme.spacing.sm,
     flexWrap: 'wrap',
@@ -156,18 +130,13 @@ const styles = StyleSheet.create({
   },
   errorTitle: {
     color: theme.colors.text,
-    fontSize: 18,
-    fontWeight: '800',
+    fontSize: 16,
+    fontWeight: '700',
   },
   errorText: {
     color: theme.colors.muted,
     fontSize: 14,
     lineHeight: 20,
-  },
-  errorButtons: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
-    flexWrap: 'wrap',
   },
   summaryCard: {
     gap: theme.spacing.sm,
@@ -175,7 +144,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: theme.colors.text,
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   summaryText: {
     color: theme.colors.muted,

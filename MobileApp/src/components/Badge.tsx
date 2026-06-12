@@ -9,11 +9,11 @@ interface BadgeProps {
 }
 
 const toneStyles: Record<BadgeTone, { backgroundColor: string; color: string }> = {
-  accent: { backgroundColor: theme.colors.accentSoft, color: theme.colors.accent },
-  success: { backgroundColor: theme.colors.successSoft, color: theme.colors.success },
-  warning: { backgroundColor: theme.colors.warningSoft, color: theme.colors.warning },
-  danger: { backgroundColor: theme.colors.dangerSoft, color: theme.colors.danger },
-  muted: { backgroundColor: 'rgba(148, 163, 184, 0.12)', color: theme.colors.muted },
+  accent: { backgroundColor: theme.colors.accent, color: theme.colors.white },
+  success: { backgroundColor: theme.colors.success, color: theme.colors.white },
+  warning: { backgroundColor: theme.colors.warning, color: theme.colors.white },
+  danger: { backgroundColor: theme.colors.danger, color: theme.colors.white },
+  muted: { backgroundColor: theme.colors.panelMuted, color: theme.colors.muted },
 };
 
 export function Badge({ tone = 'accent', children }: BadgeProps) {
@@ -30,13 +30,12 @@ const styles = StyleSheet.create({
   badge: {
     alignSelf: 'flex-start',
     borderRadius: theme.radius.pill,
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
   },
   text: {
     fontSize: 12,
     fontWeight: '700',
-    letterSpacing: 0.4,
-    textTransform: 'uppercase',
+    letterSpacing: 0,
   },
 });

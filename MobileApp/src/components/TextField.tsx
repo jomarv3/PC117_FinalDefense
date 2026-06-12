@@ -33,15 +33,15 @@ const styles = StyleSheet.create({
   label: {
     color: theme.colors.text,
     fontSize: 13,
-    fontWeight: '700',
-    letterSpacing: 0.3,
+    fontWeight: '600',
+    letterSpacing: 0,
   },
   inputWrap: {
-    minHeight: 52,
+    minHeight: 42,
     borderRadius: theme.radius.md,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    backgroundColor: 'rgba(15, 23, 42, 0.82)',
+    backgroundColor: theme.colors.white,
     flexDirection: 'row',
     alignItems: 'center',
     overflow: 'hidden',
@@ -52,9 +52,9 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     color: theme.colors.text,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: 14,
-    fontSize: 15,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
   },
   suffix: {
     paddingRight: theme.spacing.md,

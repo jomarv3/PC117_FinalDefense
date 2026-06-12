@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, ViewStyle } from 'react-native';
 import { theme } from '@/theme';
 
@@ -6,6 +7,7 @@ interface PrimaryButtonProps {
   onPress: () => void;
   loading?: boolean;
   disabled?: boolean;
+  icon?: ReactNode;
   tone?: 'primary' | 'secondary' | 'ghost';
   style?: ViewStyle;
 }
@@ -15,6 +17,7 @@ export function PrimaryButton({
   onPress,
   loading = false,
   disabled = false,
+  icon,
   tone = 'primary',
   style,
 }: PrimaryButtonProps) {
@@ -33,17 +36,20 @@ export function PrimaryButton({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={tone === 'ghost' ? theme.colors.text : theme.colors.background} />
+        <ActivityIndicator color={tone === 'primary' ? theme.colors.white : theme.colors.accent} />
       ) : (
-        <Text
-          style={[
-            styles.label,
-            tone === 'ghost' && styles.ghostLabel,
-            tone === 'secondary' && styles.secondaryLabel,
-          ]}
-        >
-          {label}
-        </Text>
+        <>
+          {icon}
+          <Text
+            style={[
+              styles.label,
+              tone === 'ghost' && styles.ghostLabel,
+              tone === 'secondary' && styles.secondaryLabel,
+            ]}
+          >
+            {label}
+          </Text>
+        </>
       )}
     </Pressable>
   );
@@ -51,15 +57,17 @@ export function PrimaryButton({
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 52,
+    minHeight: 40,
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: theme.spacing.lg,
+    flexDirection: 'row',
+    gap: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.md,
   },
   secondary: {
-    backgroundColor: theme.colors.panelMuted,
+    backgroundColor: theme.colors.white,
     borderWidth: 1,
     borderColor: theme.colors.border,
   },
@@ -69,13 +77,14 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
   },
   label: {
-    color: theme.colors.background,
-    fontSize: 15,
-    fontWeight: '800',
-    letterSpacing: 0.3,
+    color: theme.colors.white,
+    fontSize: 14,
+    fontWeight: '600',
+    letterSpacing: 0,
+    textAlign: 'center',
   },
   secondaryLabel: {
-    color: theme.colors.text,
+    color: theme.colors.accent,
   },
   ghostLabel: {
     color: theme.colors.text,

@@ -1,21 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { CameraView } from 'expo-camera';
 import { useRouter } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { Panel } from '@/components/Panel';
 import { PrimaryButton } from '@/components/PrimaryButton';
-import { Badge } from '@/components/Badge';
 import { theme } from '@/theme';
 import { useAuth } from '@/auth/useAuth';
 import { useQrScanner } from '@/scanner/useQrScanner';
 import { lookupBookByQrCode } from '@/api/books';
-import { formatApiError } from '@/api/client';
 
 export default function ScannerScreen() {
   const router = useRouter();
-  const { token, roleLabel, mobileFeatures, logout } = useAuth();
-  const [topError, setTopError] = useState<string | null>(null);
+  const { token } = useAuth();
 
   const { permission, requestPermission, isScanning, isProcessing, scanMessage, handleBarcodeScanned, resetScanner } =
     useQrScanner({
@@ -35,28 +32,13 @@ export default function ScannerScreen() {
     }
   }, [permission, requestPermission]);
 
-  const staffMode = mobileFeatures.includes('view_borrowing_history');
-  const message = scanMessage ?? topError;
-
-  const handleLogout = async () => {
-    try {
-      setTopError(null);
-      await logout();
-      router.replace('/(auth)/login');
-    } catch (error) {
-      setTopError(formatApiError(error, 'We could not sign you out.'));
-    }
-  };
-
-  const goToProfile = () => {
-    router.push('/(app)/profile');
-  };
+  const message = scanMessage;
 
   const renderCameraState = () => {
     if (!permission) {
       return (
         <Panel style={styles.cameraPanel}>
-          <Text style={styles.cameraText}>Requesting camera access...</Text>
+          <Text style={styles.helperText}>Requesting camera access...</Text>
         </Panel>
       );
     }
@@ -64,10 +46,8 @@ export default function ScannerScreen() {
     if (!permission.granted) {
       return (
         <Panel style={styles.cameraPanel}>
-          <Text style={styles.cameraTitle}>Camera permission required</Text>
-          <Text style={styles.cameraText}>
-            Expo Go needs camera access before we can scan a QR code.
-          </Text>
+          <Text style={styles.sectionTitle}>Camera permission required</Text>
+          <Text style={styles.helperText}>Enable camera access to scan catalog QR codes.</Text>
           <PrimaryButton label="Allow camera access" onPress={() => void requestPermission()} />
         </Panel>
       );
@@ -82,23 +62,12 @@ export default function ScannerScreen() {
             barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
             onBarcodeScanned={isScanning && !isProcessing ? handleBarcodeScanned : undefined}
           />
-          <View style={styles.frameOverlay}>
-            <View style={styles.frameCornerTopLeft} />
-            <View style={styles.frameCornerTopRight} />
-            <View style={styles.frameCornerBottomLeft} />
-            <View style={styles.frameCornerBottomRight} />
-          </View>
+          <View style={styles.scanBox} />
         </View>
 
-        <View style={styles.scanFooter}>
-          <Text style={styles.scanHint}>
-            {isScanning
-              ? 'Point the camera at the QR on a book. We pause after each scan so the backend does not get spammed.'
-              : 'Scanner paused. Tap Scan again when you are ready for the next book.'}
-          </Text>
-          <View style={styles.footerButtons}>
-            {!isScanning ? <PrimaryButton label="Scan again" onPress={resetScanner} tone="secondary" /> : null}
-          </View>
+        <View style={styles.cameraFooter}>
+          <Text style={styles.helperText}>{isScanning ? 'Ready to scan.' : 'Scanner paused.'}</Text>
+          {!isScanning ? <PrimaryButton label="Scan again" onPress={resetScanner} tone="secondary" /> : null}
         </View>
       </Panel>
     );
@@ -106,35 +75,10 @@ export default function ScannerScreen() {
 
   return (
     <Screen>
-      <Panel style={styles.hero}>
-        <View style={styles.heroTop}>
-          <View style={styles.heroCopy}>
-            <Badge tone={staffMode ? 'warning' : 'accent'}>{roleLabel ?? 'User'}</Badge>
-            <Text style={styles.title}>Scan a book QR</Text>
-            <Text style={styles.subtitle}>
-              Scan the library reference code and the app will pull the book record from Laravel.
-            </Text>
-          </View>
-
-          <View style={styles.heroActions}>
-            <PrimaryButton label="Profile" onPress={goToProfile} tone="secondary" />
-            <PrimaryButton label="Logout" onPress={() => void handleLogout()} tone="ghost" />
-          </View>
-        </View>
-
-        <View style={styles.featureRow}>
-          {mobileFeatures.map((feature) => (
-            <Badge key={feature} tone="muted">
-              {feature.replaceAll('_', ' ')}
-            </Badge>
-          ))}
-        </View>
-      </Panel>
-
       {message ? (
         <Panel style={styles.messageCard}>
-          <Text style={styles.messageTitle}>Scanner note</Text>
-          <Text style={styles.messageText}>{message}</Text>
+          <Text style={styles.sectionTitle}>Scanner note</Text>
+          <Text style={styles.helperText}>{message}</Text>
           <PrimaryButton label="Reset scanner" onPress={resetScanner} tone="secondary" />
         </Panel>
       ) : null}
@@ -145,62 +89,21 @@ export default function ScannerScreen() {
 }
 
 const styles = StyleSheet.create({
-  hero: {
-    gap: theme.spacing.md,
-  },
-  heroTop: {
-    gap: theme.spacing.md,
-  },
-  heroCopy: {
-    gap: theme.spacing.sm,
-  },
-  title: {
-    color: theme.colors.text,
-    fontSize: 30,
-    lineHeight: 34,
-    fontWeight: '900',
-    letterSpacing: -0.4,
-  },
-  subtitle: {
-    color: theme.colors.muted,
-    fontSize: 15,
-    lineHeight: 22,
-  },
-  heroActions: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
-    flexWrap: 'wrap',
-  },
-  featureRow: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
-    flexWrap: 'wrap',
-  },
   messageCard: {
     gap: theme.spacing.sm,
   },
-  messageTitle: {
+  sectionTitle: {
     color: theme.colors.text,
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '700',
   },
-  messageText: {
+  helperText: {
     color: theme.colors.muted,
     fontSize: 14,
     lineHeight: 20,
   },
   cameraPanel: {
     gap: theme.spacing.md,
-  },
-  cameraTitle: {
-    color: theme.colors.text,
-    fontSize: 18,
-    fontWeight: '800',
-  },
-  cameraText: {
-    color: theme.colors.muted,
-    fontSize: 14,
-    lineHeight: 20,
   },
   cameraFrame: {
     aspectRatio: 3 / 4,
@@ -210,65 +113,18 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
     backgroundColor: theme.colors.panelMuted,
   },
-  frameOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  frameCornerTopLeft: {
+  scanBox: {
     position: 'absolute',
-    top: 18,
-    left: 18,
-    width: 42,
-    height: 42,
-    borderTopWidth: 4,
-    borderLeftWidth: 4,
+    alignSelf: 'center',
+    top: '23%',
+    width: '68%',
+    aspectRatio: 1,
+    borderWidth: 2,
     borderColor: theme.colors.accent,
-    borderTopLeftRadius: 12,
+    borderRadius: theme.radius.lg,
+    backgroundColor: 'transparent',
   },
-  frameCornerTopRight: {
-    position: 'absolute',
-    top: 18,
-    right: 18,
-    width: 42,
-    height: 42,
-    borderTopWidth: 4,
-    borderRightWidth: 4,
-    borderColor: theme.colors.accentWarm,
-    borderTopRightRadius: 12,
-  },
-  frameCornerBottomLeft: {
-    position: 'absolute',
-    bottom: 18,
-    left: 18,
-    width: 42,
-    height: 42,
-    borderBottomWidth: 4,
-    borderLeftWidth: 4,
-    borderColor: theme.colors.accentWarm,
-    borderBottomLeftRadius: 12,
-  },
-  frameCornerBottomRight: {
-    position: 'absolute',
-    bottom: 18,
-    right: 18,
-    width: 42,
-    height: 42,
-    borderBottomWidth: 4,
-    borderRightWidth: 4,
-    borderColor: theme.colors.accent,
-    borderBottomRightRadius: 12,
-  },
-  scanFooter: {
-    gap: theme.spacing.sm,
-  },
-  scanHint: {
-    color: theme.colors.muted,
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  footerButtons: {
-    flexDirection: 'row',
+  cameraFooter: {
     gap: theme.spacing.sm,
   },
 });

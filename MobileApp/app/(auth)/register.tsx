@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Screen } from '@/components/Screen';
 import { Panel } from '@/components/Panel';
 import { TextField } from '@/components/TextField';
 import { PrimaryButton } from '@/components/PrimaryButton';
-import { Badge } from '@/components/Badge';
 import { theme } from '@/theme';
 import { useAuth } from '@/auth/useAuth';
 import { formatApiError } from '@/api/client';
@@ -59,8 +58,13 @@ export default function RegisterScreen() {
 
     try {
       setLoading(true);
-      await register(name.trim(), email.trim(), password);
-      router.replace({ pathname: '/(auth)/login', params: { email: email.trim() } });
+      const response = await register(name.trim(), email.trim(), password);
+      Alert.alert('Check your email', response.message, [
+        {
+          text: 'OK',
+          onPress: () => router.replace({ pathname: '/(auth)/login', params: { email: email.trim() } }),
+        },
+      ]);
     } catch (error) {
       setFormError(formatApiError(error, 'We could not create this account.'));
     } finally {
@@ -70,18 +74,10 @@ export default function RegisterScreen() {
 
   return (
     <Screen>
-      <Panel style={styles.hero}>
-        <Badge tone="accent">Borrower registration</Badge>
-        <Text style={styles.title}>Create a User account</Text>
-        <Text style={styles.subtitle}>
-          Register a borrower account so the mobile app can log in and scan book QR codes.
-        </Text>
-      </Panel>
-
       <Panel style={styles.formCard}>
         <View style={styles.formHeader}>
-          <Text style={styles.formTitle}>Register</Text>
-          <Text style={styles.formHint}>This creates a borrower account on the Laravel backend.</Text>
+          <Text style={styles.formTitle}>Borrower account</Text>
+          <Text style={styles.formHint}>New accounts are created with borrower access.</Text>
         </View>
 
         {formError ? <Text style={styles.bannerError}>{formError}</Text> : null}
@@ -130,7 +126,7 @@ export default function RegisterScreen() {
         <PrimaryButton label="Create account" onPress={submit} loading={loading} />
 
         <Pressable onPress={() => router.push('/(auth)/login')} style={styles.linkWrap}>
-          <Text style={styles.linkText}>Already have an account? Sign in instead.</Text>
+          <Text style={styles.linkText}>Back to sign in</Text>
         </Pressable>
       </Panel>
     </Screen>
@@ -138,31 +134,17 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-  hero: {
-    gap: theme.spacing.md,
-  },
-  title: {
-    color: theme.colors.text,
-    fontSize: 30,
-    lineHeight: 36,
-    fontWeight: '900',
-    letterSpacing: -0.3,
-  },
-  subtitle: {
-    color: theme.colors.muted,
-    fontSize: 15,
-    lineHeight: 22,
-  },
   formCard: {
-    gap: theme.spacing.lg,
+    gap: theme.spacing.md,
   },
   formHeader: {
     gap: 4,
   },
   formTitle: {
     color: theme.colors.text,
-    fontSize: 22,
-    fontWeight: '900',
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: '700',
   },
   formHint: {
     color: theme.colors.muted,
@@ -172,9 +154,11 @@ const styles = StyleSheet.create({
     color: theme.colors.danger,
     backgroundColor: theme.colors.dangerSoft,
     borderRadius: theme.radius.md,
-    padding: theme.spacing.md,
+    padding: 12,
     borderWidth: 1,
-    borderColor: 'rgba(251, 113, 133, 0.22)',
+    borderColor: '#fecaca',
+    fontSize: 13,
+    lineHeight: 18,
   },
   linkWrap: {
     alignSelf: 'center',
@@ -183,6 +167,6 @@ const styles = StyleSheet.create({
   linkText: {
     color: theme.colors.accent,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '600',
   },
 });

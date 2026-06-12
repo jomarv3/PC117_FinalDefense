@@ -29,10 +29,16 @@ export function BookDetailCard({ book, staffMode = false }: BookDetailCardProps)
         </View>
 
         <View style={styles.headerMeta}>
-          <Badge tone={statusTone}>{book.status}</Badge>
-          <Text style={styles.title}>{book.title}</Text>
-          <Text style={styles.author}>{book.author}</Text>
-          <Text style={styles.subtitle}>{formatMaybe(book.category, 'Uncategorized')}</Text>
+          <Badge tone={statusTone}>{formatMaybe(book.status, 'unknown')}</Badge>
+          <Text selectable style={styles.title}>
+            {book.title}
+          </Text>
+          <Text selectable style={styles.author}>
+            {book.author}
+          </Text>
+          <Text selectable style={styles.category}>
+            {formatMaybe(book.category, 'Uncategorized')}
+          </Text>
         </View>
       </View>
 
@@ -50,12 +56,14 @@ export function BookDetailCard({ book, staffMode = false }: BookDetailCardProps)
             {book.recent_transactions.map((transaction) => (
               <View key={transaction.id} style={styles.historyItem}>
                 <View style={styles.historyTopRow}>
-                  <Text style={styles.historyName}>{transaction.borrower_name ?? 'Borrower'}</Text>
+                  <Text selectable style={styles.historyName}>
+                    {transaction.borrower_name ?? 'Borrower'}
+                  </Text>
                   <Badge tone="muted">{transaction.status ?? 'pending'}</Badge>
                 </View>
-                <Text style={styles.historyLine}>Borrowed: {formatDateTime(transaction.borrow_date)}</Text>
-                <Text style={styles.historyLine}>Due: {formatDateTime(transaction.due_date)}</Text>
-                <Text style={styles.historyLine}>Returned: {formatDateTime(transaction.return_date)}</Text>
+                <InfoRow label="Borrowed" value={formatDateTime(transaction.borrow_date)} compact />
+                <InfoRow label="Due" value={formatDateTime(transaction.due_date)} compact />
+                <InfoRow label="Returned" value={formatDateTime(transaction.return_date)} compact />
               </View>
             ))}
           </View>
@@ -65,26 +73,28 @@ export function BookDetailCard({ book, staffMode = false }: BookDetailCardProps)
   );
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
+function InfoRow({ label, value, compact = false }: { label: string; value: string; compact?: boolean }) {
   return (
-    <View style={styles.infoRow}>
+    <View style={[styles.infoRow, compact && styles.infoRowCompact]}>
       <Text style={styles.infoLabel}>{label}</Text>
-      <Text style={styles.infoValue}>{value}</Text>
+      <Text selectable style={styles.infoValue}>
+        {value}
+      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   wrapper: {
-    gap: theme.spacing.lg,
+    gap: theme.spacing.md,
   },
   header: {
     flexDirection: 'row',
     gap: theme.spacing.md,
   },
   coverWrap: {
-    width: 108,
-    height: 156,
+    width: 88,
+    height: 128,
     borderRadius: theme.radius.md,
     overflow: 'hidden',
     backgroundColor: theme.colors.panelMuted,
@@ -104,51 +114,53 @@ const styles = StyleSheet.create({
   },
   coverFallbackText: {
     color: theme.colors.muted,
-    fontSize: 13,
-    fontWeight: '700',
+    fontSize: 12,
+    fontWeight: '600',
   },
   headerMeta: {
     flex: 1,
-    justifyContent: 'space-between',
-    gap: theme.spacing.sm,
+    gap: 8,
   },
   title: {
     color: theme.colors.text,
-    fontSize: 24,
-    lineHeight: 30,
-    fontWeight: '800',
+    fontSize: 18,
+    lineHeight: 24,
+    fontWeight: '700',
   },
   author: {
-    color: theme.colors.muted,
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  subtitle: {
     color: theme.colors.text,
     fontSize: 14,
-    lineHeight: 20,
+    fontWeight: '600',
+  },
+  category: {
+    color: theme.colors.muted,
+    fontSize: 13,
+    lineHeight: 18,
   },
   grid: {
-    gap: theme.spacing.sm,
+    gap: 0,
   },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     gap: theme.spacing.md,
+    paddingVertical: 9,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.borderSoft,
+  },
+  infoRowCompact: {
     paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(148, 163, 184, 0.10)',
   },
   infoLabel: {
     color: theme.colors.muted,
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '600',
   },
   infoValue: {
     color: theme.colors.text,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '600',
     flexShrink: 1,
     textAlign: 'right',
   },
@@ -158,33 +170,30 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: theme.colors.text,
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   historyList: {
     gap: theme.spacing.sm,
   },
   historyItem: {
     padding: theme.spacing.md,
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.panelMuted,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    gap: 6,
+    gap: 2,
   },
   historyTopRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: theme.spacing.sm,
+    paddingBottom: 6,
   },
   historyName: {
     color: theme.colors.text,
     fontSize: 14,
-    fontWeight: '800',
+    fontWeight: '700',
     flex: 1,
-  },
-  historyLine: {
-    color: theme.colors.muted,
-    fontSize: 13,
   },
 });

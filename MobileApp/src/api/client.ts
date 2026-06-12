@@ -111,16 +111,27 @@ export async function requestJson<T>(
 ): Promise<T> {
   ensureConfig();
 
-  const response = await fetch(buildUrl(path, options.query), {
-    method: options.method ?? 'GET',
-    headers: {
-      Accept: 'application/json',
-      'x-api-key': apiKey,
-      ...(options.token ? { Authorization: `Bearer ${options.token}` } : {}),
-      ...(options.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
-    },
-    body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
-  });
+  const url = buildUrl(path, options.query);
+  let response: Response;
+
+  try {
+    response = await fetch(url, {
+      method: options.method ?? 'GET',
+      headers: {
+        Accept: 'application/json',
+        'x-api-key': apiKey,
+        ...(options.token ? { Authorization: `Bearer ${options.token}` } : {}),
+        ...(options.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+      },
+      body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Network request failed';
+
+    throw new Error(
+      `Cannot reach the library API at ${url}. Make sure your phone and PC are on the same Wi-Fi, Laravel is running with "composer run serve:lan", and Windows Firewall allows port 8000. (${message})`,
+    );
+  }
 
   const text = await response.text();
   const payload = text ? safeParseJson(text) : {};

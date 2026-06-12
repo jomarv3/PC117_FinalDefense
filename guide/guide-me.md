@@ -7,6 +7,30 @@ Kini nga giya kay para makasabot ka unsaon paggamit sa system ug asa makita sa c
 
 ## Quick Start
 
+### 0. I-setup ang local env files
+
+Ayaw i-hardcode ang local IP or API key sa code. Kada developer dapat adunay kaugalingong local config:
+
+```powershell
+Copy-Item Backend/.env.example Backend/.env
+Copy-Item Frontend/env.example.js Frontend/env.js
+Copy-Item MobileApp/.env.example MobileApp/.env
+```
+
+Usba kini nga values depende sa imong machine:
+
+- `Backend/.env`: `APP_URL` para sa backend URL nga mo-serve sa images ug QR codes. Kung gamiton sa phone/Expo Go, ibutang ang LAN IP, pananglitan `http://192.168.1.50:8000`.
+- `Backend/.env`: `CORS_ALLOWED_ORIGINS` para sa frontend origins nga allowed mo-call sa API.
+- `Backend/.env`: `MOBILE_API_KEY` para sa mobile API key.
+- `Frontend/env.js`: `API_URL` para sa web dashboard API, pananglitan `http://127.0.0.1:8000/api`.
+- `MobileApp/.env`: `EXPO_PUBLIC_API_URL` ug `EXPO_PUBLIC_LIBRARY_API_KEY`. Ang API key dapat pareho sa `Backend/.env` nga `MOBILE_API_KEY`.
+
+Kung usbon ang `MobileApp/.env`, i-restart ang Expo gamit:
+
+```powershell
+npx expo start -c
+```
+
 ### 1. Paandara ang backend
 
 Adto sa `Backend` folder:
@@ -15,14 +39,15 @@ Adto sa `Backend` folder:
 cd Backend
 composer install
 php artisan migrate --seed
-php artisan serve
+composer run serve:lan
 ```
 
-Ang frontend naka-point sa API URL nga `http://127.0.0.1:8000/api`.
+Ang frontend API URL gikan na sa local `Frontend/env.js`.
 
 Code reference:
 
 - `Frontend/js/shared/config.js:1` - diri gi-set ang API base URL.
+- `Frontend/env.example.js:1` - example sa frontend local API config.
 - `Backend/composer.json:43` - naa diri ang Laravel setup scripts.
 - `Backend/composer.json:52` - naa diri ang `composer run dev` command kung gusto nimo usa ka command para server, queue, ug Vite.
 - `Backend/config/cors.php:11` - CORS paths para sa API.

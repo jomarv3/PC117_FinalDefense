@@ -25,7 +25,7 @@ EXPO_PUBLIC_API_URL=http://YOUR_LOCAL_IP:8000/api
 EXPO_PUBLIC_LIBRARY_API_KEY=change-me-local-mobile-key
 ```
 
-The API key must match the Laravel backend `MOBILE_API_KEY`.
+The API key must match the Laravel backend `MOBILE_API_KEY`. The backend `APP_URL` should use the same host without `/api`, for example `http://YOUR_LOCAL_IP:8000`, so uploaded cover images and QR codes load on the phone.
 
 ## Run With Expo Go
 
@@ -36,10 +36,19 @@ npx expo start
 
 Then open the QR code in Expo Go on your phone.
 
+Restart Expo with `npx expo start -c` after changing `.env` values.
+
 ## Backend URL
 
 - If the backend is running locally, use your computer's LAN IP instead of `127.0.0.1`.
 - Example: `http://192.168.1.50:8000/api`
+- Start Laravel so it listens on your LAN, not just localhost:
+
+```bash
+cd ../Backend
+composer run serve:lan
+```
+
 - If needed, use ngrok and point `EXPO_PUBLIC_API_URL` to the tunnel URL.
 
 ## Seeded Accounts
@@ -57,7 +66,7 @@ Then open the QR code in Expo Go on your phone.
 
 ## Troubleshooting
 
-- If login fails, confirm the backend is reachable from your phone.
+- If login says the network request failed, confirm `http://YOUR_LOCAL_IP:8000/api/mobile/login` is reachable and no other `localhost:8000` PHP server is occupying the port.
 - If every request says the API key is invalid, check `MOBILE_API_KEY` on both sides.
 - If the camera does not open, approve camera permissions in Expo Go.
 - If book lookup fails, confirm the QR code content matches a `books.isbn` value.
