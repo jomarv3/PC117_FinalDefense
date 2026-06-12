@@ -20,6 +20,10 @@ function defaultApiUrl() {
         return "http://127.0.0.1:8000/api";
     }
 
+    if (hostname.endsWith("yaxdedal.site")) {
+        return "https://jomarbackend.yaxdedal.site/api";
+    }
+
     return `${protocol}//${hostname}:8000/api`;
 }
 
