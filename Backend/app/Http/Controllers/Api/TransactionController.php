@@ -4,11 +4,15 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\Transaction;
+use App\Services\TransactionNotificationService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 
 class TransactionController extends Controller
 {
+    public function __construct(private TransactionNotificationService $notifications)
+    {
+    }
+
     public function borrow(Request $request)
     {
         $data = $request->validate([
@@ -44,7 +48,7 @@ class TransactionController extends Controller
         ]);
 
         $transaction->load(['user', 'book']);
-        $this->sendMail($transaction, 'borrowed');
+        $this->notifications->send($transaction, 'borrowed');
 
         return response()->json($transaction->load(['user', 'book']));
     }
@@ -69,7 +73,7 @@ class TransactionController extends Controller
             'status' => 'returned'
         ]);
 
-        $this->sendMail($t->load(['user', 'book']), 'returned');
+        $this->notifications->send($t->load(['user', 'book']), 'returned');
 
         return response()->json($t->load(['user', 'book']));
     }
@@ -89,31 +93,4 @@ class TransactionController extends Controller
         ]);
     }
 
-    private function sendMail(Transaction $transaction, string $type): void
-    {
-        try {
-            if ($transaction->user?->email) {
-                Mail::send('emails.transaction', [
-                    'transaction' => $transaction,
-                    'type' => $type,
-                ], function ($message) use ($transaction, $type) {
-                    $message
-                        ->to($transaction->user->email)
-                        ->subject($this->mailSubject($type));
-                });
-            }
-        } catch (\Throwable $e) {
-            report($e);
-        }
-    }
-
-    private function mailSubject(string $type): string
-    {
-        return match ($type) {
-            'returned' => 'Book Return Confirmation',
-            'due' => 'Borrowed Book Due Today',
-            'overdue' => 'Overdue Borrowed Book Notice',
-            default => 'Borrowing Transaction Confirmation',
-        };
-    }
 }   

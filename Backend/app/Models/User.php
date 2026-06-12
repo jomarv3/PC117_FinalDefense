@@ -3,17 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
+use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmailContract
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, MustVerifyEmailTrait, Notifiable;
 
     protected $fillable = [
         'name',
         'email',
+        'email_verified_at',
         'phone',
         'password',
         'role',
@@ -26,6 +29,10 @@ class User extends Authenticatable
     ];
 
     protected $appends = ['profile_image_url'];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
 
     public function getProfileImageUrlAttribute()
     {

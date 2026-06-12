@@ -57,6 +57,7 @@ Route::middleware(['auth:sanctum', 'cache.headers'])->group(function(){
         Route::get('/categories', [BookController::class, 'categories']);
         Route::post('/categories', [BookController::class, 'storeCategory']);
         Route::post('/books', [BookController::class, 'store']);
+        Route::post('/books/{id}/qr-code', [BookController::class, 'generateQrCode']);
         Route::put('/books/{id}', [BookController::class, 'update']);
         Route::delete('/books/{id}', [BookController::class, 'destroy']);
 

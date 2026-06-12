@@ -48,8 +48,10 @@ class UserController extends Controller
             'profile_image' => $path
         ]);
 
+        $user->sendEmailVerificationNotification();
+
         return response()->json([
-            'message' => 'Member account created successfully.',
+            'message' => 'Member account created successfully. A verification email has been sent.',
             'user' => $user
         ]);
     }
@@ -62,6 +64,7 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
+        $emailChanged = $request->filled('email') && $request->email !== $user->email;
 
         $request->validate([
             'name' => 'nullable',
@@ -88,11 +91,18 @@ class UserController extends Controller
             'password' => $request->password
                 ? Hash::make($request->password)
                 : $user->password,
+            'email_verified_at' => $emailChanged ? null : $user->email_verified_at,
             'profile_image' => $user->profile_image
         ]);
 
+        if ($emailChanged) {
+            $user->sendEmailVerificationNotification();
+        }
+
         return response()->json([
-            'message' => 'Member account updated successfully.',
+            'message' => $emailChanged
+                ? 'Member account updated successfully. A verification email has been sent to the new address.'
+                : 'Member account updated successfully.',
             'user' => $user
         ]);
     }

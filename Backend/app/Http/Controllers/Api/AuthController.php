@@ -26,7 +26,12 @@ class AuthController extends Controller
             'role' => 'borrower'
         ]);
 
-        return response()->json($user);
+        $user->sendEmailVerificationNotification();
+
+        return response()->json([
+            'message' => 'Account created successfully. Please check your email to verify your account before signing in.',
+            'user' => $user,
+        ], 201);
     }
 
     public function login(Request $request)
@@ -35,6 +40,10 @@ class AuthController extends Controller
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'The email address or password is incorrect.'], 401);
+        }
+
+        if (!$user->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Please verify your email address before signing in.'], 403);
         }
 
         $expiresAt = now()->addHours(self::SESSION_HOURS);

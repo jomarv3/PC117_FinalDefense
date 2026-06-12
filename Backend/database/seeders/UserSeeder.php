@@ -14,6 +14,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Admin User',
             'email' => 'admin@library.com',
+            'email_verified_at' => now(),
             'password' => Hash::make('password123'),
             'role' => 'admin',
         ]);
@@ -22,6 +23,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Librarian User',
             'email' => 'librarian@library.com',
+            'email_verified_at' => now(),
             'password' => Hash::make('password123'),
             'role' => 'librarian',
         ]);
@@ -30,6 +32,8 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Borrower User',
             'email' => 'borrower@library.com',
+            'email_verified_at' => now(),
+            'phone' => '+639854520196',
             'password' => Hash::make('password123'),
             'role' => 'borrower',
         ]);

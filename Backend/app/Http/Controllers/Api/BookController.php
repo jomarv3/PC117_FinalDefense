@@ -184,6 +184,32 @@ class BookController extends Controller
         return response()->json(['message' => 'Catalog record deleted successfully.']);
     }
 
+    public function generateQrCode($id)
+    {
+        $book = Book::find($id);
+
+        if (!$book) {
+            return response()->json(['message' => 'Catalog record not found.'], 404);
+        }
+
+        if (!$book->isbn) {
+            return response()->json([
+                'message' => 'This catalog record needs a library reference number before a QR code can be generated.',
+            ], 422);
+        }
+
+        if (!$this->generateQr($book)) {
+            return response()->json([
+                'message' => 'The QR code could not be generated.',
+            ], 500);
+        }
+
+        return response()->json([
+            'message' => 'QR code generated successfully.',
+            'book' => $book->fresh(),
+        ]);
+    }
+
     private function generateQr(Book $book)
     {
         try {
@@ -206,8 +232,10 @@ class BookController extends Controller
                 'qr_code' => 'qrcodes/' . $qrName
             ]);
 
+            return true;
+
         } catch (\Exception $e) {
-            // prevent crash if QR fails
+            return false;
         }
     }
 }

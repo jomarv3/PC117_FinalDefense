@@ -26,6 +26,12 @@ class MobileAuthController extends Controller
             ], 401);
         }
 
+        if (!$user->hasVerifiedEmail()) {
+            return response()->json([
+                'message' => 'Please verify your email address before signing in.',
+            ], 403);
+        }
+
         $expiresAt = now()->addHours(self::SESSION_HOURS);
 
         return response()->json([
@@ -53,8 +59,10 @@ class MobileAuthController extends Controller
             'role' => 'borrower',
         ]);
 
+        $user->sendEmailVerificationNotification();
+
         return response()->json([
-            'message' => 'Borrower account created successfully.',
+            'message' => 'Borrower account created successfully. Please check your email to verify your account before signing in.',
             'user' => $this->userPayload($user),
             'role' => $user->role,
             'role_label' => $this->roleLabel($user->role),

@@ -3,17 +3,21 @@
 namespace App\Console\Commands;
 
 use App\Models\Transaction;
+use App\Services\TransactionNotificationService;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Carbon;
 
 #[Signature('app:check-overdue')]
 #[Description('Check due and overdue borrowed books')]
 class CheckOverdue extends Command
 {
+    public function __construct(private TransactionNotificationService $notifications)
+    {
+        parent::__construct();
+    }
+
     /**
      * Execute the console command.
      */
@@ -21,9 +25,11 @@ class CheckOverdue extends Command
     {
         Transaction::whereNull('due_date')
             ->whereNotNull('borrow_date')
-            ->update([
-                'due_date' => DB::raw('DATE_ADD(borrow_date, INTERVAL 7 DAY)')
-            ]);
+            ->each(function (Transaction $transaction) {
+                $transaction->update([
+                    'due_date' => Carbon::parse($transaction->borrow_date)->addDays(7)->toDateString(),
+                ]);
+            });
 
         $dueTransactions = Transaction::with(['user', 'book'])
             ->where('status', 'borrowed')
@@ -32,7 +38,7 @@ class CheckOverdue extends Command
             ->get();
 
         foreach ($dueTransactions as $transaction) {
-            $this->notify($transaction, 'due');
+            $this->notifications->send($transaction, 'due');
             $transaction->update(['due_notified_at' => now()]);
         }
 
@@ -44,56 +50,10 @@ class CheckOverdue extends Command
 
         foreach ($overdueTransactions as $transaction) {
             $transaction->update(['status' => 'overdue']);
-            $this->notify($transaction, 'overdue');
+            $this->notifications->send($transaction, 'overdue');
             $transaction->update(['overdue_notified_at' => now()]);
         }
 
         $this->info('Due and overdue books checked.');
-    }
-
-    private function notify(Transaction $transaction, string $type): void
-    {
-        try {
-            if ($transaction->user?->email) {
-                Mail::send('emails.transaction', [
-                    'transaction' => $transaction,
-                    'type' => $type,
-                ], function ($message) use ($transaction, $type) {
-                    $message
-                        ->to($transaction->user->email)
-                        ->subject($this->mailSubject($type));
-                });
-            }
-        } catch (\Throwable $e) {
-            report($e);
-        }
-
-        $message = $type === 'due'
-            ? "{$transaction->book?->title} is due today."
-            : "{$transaction->book?->title} is overdue.";
-
-        $this->sendSms($transaction->user?->phone, $message);
-    }
-
-    private function sendSms(?string $phone, string $message): void
-    {
-        if (!$phone) {
-            return;
-        }
-
-        Log::info('SMS notification', [
-            'to' => $phone,
-            'message' => $message,
-        ]);
-    }
-
-    private function mailSubject(string $type): string
-    {
-        return match ($type) {
-            'returned' => 'Book Return Confirmation',
-            'due' => 'Borrowed Book Due Today',
-            'overdue' => 'Overdue Borrowed Book Notice',
-            default => 'Borrowing Transaction Confirmation',
-        };
     }
 }

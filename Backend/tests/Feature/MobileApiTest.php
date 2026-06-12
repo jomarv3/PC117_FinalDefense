@@ -26,6 +26,7 @@ function createRoleUser(string $role, array $overrides = []): User
     return User::create(array_merge([
         'name' => ucfirst($role) . ' User',
         'email' => $role . '@example.com',
+        'email_verified_at' => now(),
         'password' => Hash::make('password123'),
         'role' => $role,
     ], $overrides));
@@ -89,7 +90,7 @@ it('creates a borrower account through mobile register', function () {
 
     $response->assertCreated()
         ->assertJson([
-            'message' => 'Borrower account created successfully.',
+            'message' => 'Borrower account created successfully. Please check your email to verify your account before signing in.',
             'role' => 'borrower',
             'role_label' => 'User',
         ]);
