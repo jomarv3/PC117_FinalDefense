@@ -58,6 +58,7 @@ authForm.onsubmit = async (event) => {
             saveSession(data);
             window.location.replace("dashboard.html");
         } else {
+            await Swal.fire("Check Your Email", data.message ?? "Please verify your email before signing in.", "success");
             toggle.click();
         }
 

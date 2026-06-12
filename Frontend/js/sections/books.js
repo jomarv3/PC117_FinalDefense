@@ -79,6 +79,7 @@ function renderBooks() {
         const status = b.status ?? 'available';
         const statusClass = status === 'unavailable' ? 'status-unavailable' : 'status-available';
         const availableQuantity = b.available_quantity ?? b.quantity;
+        const qrLabel = b.qr_url ? "QR" : "Generate QR";
 
         html += `
         <tr>
@@ -93,7 +94,7 @@ function renderBooks() {
             <td><span class="status-badge ${statusClass}">${displayStatus(status)}</span></td>
             <td>
                 <button class="action-btn view" onclick="viewBookHistory(${b.id})">History</button>
-                <button class="action-btn qr" onclick="viewBookQr(${b.id})">QR</button>
+                <button class="action-btn qr" onclick="viewBookQr(${b.id})">${qrLabel}</button>
                 <button class="action-btn edit" onclick="editBook(${b.id})">Edit</button>
                 <button class="action-btn delete" onclick="deleteItem('books',${b.id})">Delete</button>
             </td>
@@ -378,11 +379,36 @@ async function viewBookQr(id) {
             headers: authHeaders()
         });
 
-        const book = await readJson(res);
+        let book = await readJson(res);
 
         if (!book.qr_url) {
-            Swal.fire("QR Code Unavailable", "This catalog record does not have a generated QR code yet.", "info");
-            return;
+            Swal.fire({
+                title: "Generating QR Code",
+                text: "Creating a QR code for this catalog record...",
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            const generateRes = await fetch(`${API}/books/${id}/qr-code`, {
+                method: "POST",
+                headers: authHeaders()
+            });
+
+            const generated = await readJson(generateRes);
+            book = generated.book;
+
+            const index = booksData.findIndex(item => item.id === book.id);
+
+            if (index >= 0) {
+                booksData[index] = book;
+                renderBooks();
+            } else {
+                loadBooks();
+            }
+        }
+
+        if (!book.qr_url) {
+            throw { message: "The QR code was generated, but no QR image URL was returned." };
         }
 
         Swal.fire({

@@ -1,8 +1,27 @@
-const API = window.LIBRARY_API_URL || "http://192.168.1.14:8000/api";
+const localConfig = window.LIBRARY_CONFIG || {};
+const API = (localConfig.API_URL || window.LIBRARY_API_URL || defaultApiUrl()).replace(/\/+$/, "");
 const token = localStorage.getItem("token");
 const SESSION_KEY = "sessionExpiresAt";
 const noUserImage = "https://dummyimage.com/50x50/cccccc/000000&text=Member";
 const noBookImage = "https://dummyimage.com/60x80/cccccc/000000&text=No+Image";
+
+function defaultApiUrl() {
+    const { protocol, hostname } = window.location;
+
+    if (protocol === "file:") {
+        return "http://127.0.0.1:8000/api";
+    }
+
+    if (hostname === "frontend.test" || hostname.endsWith(".frontend.test")) {
+        return "http://127.0.0.1:8000/api";
+    }
+
+    if (hostname === "localhost" || hostname === "127.0.0.1") {
+        return "http://127.0.0.1:8000/api";
+    }
+
+    return `${protocol}//${hostname}:8000/api`;
+}
 
 function authHeaders() {
     return {
@@ -62,6 +81,10 @@ function validOptionalIsbn(isbn) {
 }
 
 function apiError(err, fallback) {
+    if (err instanceof TypeError) {
+        return `Cannot reach the API server at ${API}. Make sure the Laravel backend is running.`;
+    }
+
     if (err.errors) {
         return Object.values(err.errors).flat().join('\n');
     }
